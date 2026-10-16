@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import PriceTicker from "@/components/PriceTicker";
 import ProductGrid from "@/components/ProductGrid";
@@ -27,31 +28,35 @@ async function fetchCategories(): Promise<Category[]> {
       const response = await fetch(`${base}/categories`);
 
       if (!response.ok) {
-        throw new Error("Failed to fetch categories");
+        throw new Error(`HTTP ${response.status}`);
       }
 
       const result: unknown = await response.json();
 
-      const categories = Array.isArray(result)
-        ? result
-        : typeof result === "object" && result !== null
-          ? (
-              (result as { categories?: unknown }).categories ??
-              (result as { data?: unknown }).data
-            )
-          : [];
+      let categories: unknown = result;
 
-      if (Array.isArray(categories)) {
-        return categories as Category[];
+      if (!Array.isArray(result) && typeof result === "object" && result !== null) {
+        const payload = result as {
+          categories?: unknown;
+          data?: unknown;
+        };
+
+        categories = payload.categories ?? payload.data;
       }
 
-      throw new Error("Invalid categories response");
+      if (!Array.isArray(categories)) {
+        throw new Error("Invalid categories response");
+      }
+
+      return categories as Category[];
     } catch (error) {
       lastError = error;
     }
   }
 
-  throw lastError ?? new Error("Unable to load categories");
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("ক্যাটাগরির তথ্য লোড করা যায়নি।");
 }
 
 export default function CategoryPage() {
@@ -61,6 +66,7 @@ export default function CategoryPage() {
   const [category, setCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [retry, setRetry] = useState(0);
   const [sortOrder, setSortOrder] = useState<
     "default" | "price-asc" | "price-desc"
   >("default");
@@ -69,10 +75,11 @@ export default function CategoryPage() {
     let active = true;
 
     async function loadCategory() {
-      try {
-        setLoading(true);
-        setError("");
+      setLoading(true);
+      setError("");
+      setCategory(null);
 
+      try {
         const categories = await fetchCategories();
         const selectedCategory = categories.find(
           (item) => item.slug === slug
@@ -81,7 +88,6 @@ export default function CategoryPage() {
         if (!active) return;
 
         if (!selectedCategory) {
-          setCategory(null);
           setError("এই ক্যাটাগরিটি খুঁজে পাওয়া যায়নি।");
           return;
         }
@@ -89,9 +95,7 @@ export default function CategoryPage() {
         setCategory(selectedCategory);
       } catch {
         if (active) {
-          setError(
-            "ক্যাটাগরির তথ্য লোড করা যায়নি। আবার চেষ্টা করুন।"
-          );
+          setError("ক্যাটাগরির তথ্য লোড করা যায়নি। আবার চেষ্টা করুন।");
         }
       } finally {
         if (active) {
@@ -100,12 +104,12 @@ export default function CategoryPage() {
       }
     }
 
-    loadCategory();
+    void loadCategory();
 
     return () => {
       active = false;
     };
-  }, [slug]);
+  }, [slug, retry]);
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -113,31 +117,26 @@ export default function CategoryPage() {
       <PriceTicker />
 
       <section className="container-main py-8 md:py-12">
-        <nav
-          aria-label="Breadcrumb"
-          className="mb-6 text-sm text-gray-500"
-        >
-          <a href="/" className="hover:text-green-700">
+        <nav aria-label="Breadcrumb" className="mb-6 text-sm text-gray-500">
+          <Link href="/" className="hover:text-green-700">
             হোম
-          </a>
+          </Link>
           <span className="mx-2">/</span>
-          <span className="text-gray-800">
-            ক্যাটাগরি
-          </span>
+          <span>ক্যাটাগরি</span>
+
           {category && (
             <>
               <span className="mx-2">/</span>
-              <span className="text-green-700">
-                {category.nameBn}
-              </span>
+              <span className="text-green-700">{category.nameBn}</span>
             </>
           )}
         </nav>
 
         {loading ? (
-          <div className="animate-pulse">
+          <div className="animate-pulse" aria-label="লোড হচ্ছে">
             <div className="mb-4 h-8 w-56 rounded bg-gray-200" />
             <div className="mb-8 h-4 w-72 max-w-full rounded bg-gray-200" />
+
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {Array.from({ length: 8 }, (_, index) => (
                 <div
@@ -152,20 +151,34 @@ export default function CategoryPage() {
             </div>
           </div>
         ) : error ? (
-          <div className="rounded-2xl border border-gray-200 bg-white px-6 py-16 text-center">
+          <div
+            className="rounded-2xl border border-gray-200 bg-white px-6 py-16 text-center"
+            role="alert"
+          >
             <p className="mb-4 text-4xl">🔎</p>
             <h1 className="mb-2 text-xl font-bold text-gray-900">
               {error}
             </h1>
             <p className="mb-6 text-sm text-gray-500">
-              ক্যাটাগরির লিংকটি যাচাই করুন অথবা হোমপেজে ফিরে যান।
+              আবার চেষ্টা করুন অথবা হোমপেজে ফিরে যান।
             </p>
-            <a
-              href="/"
-              className="inline-flex rounded-xl bg-green-700 px-5 py-3 font-semibold text-white transition hover:bg-green-800"
-            >
-              হোমপেজে ফিরে যান
-            </a>
+
+            <div className="flex flex-wrap justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setRetry((previous) => previous + 1)}
+                className="rounded-xl bg-green-700 px-5 py-3 font-semibold text-white transition hover:bg-green-800"
+              >
+                আবার চেষ্টা করুন
+              </button>
+
+              <Link
+                href="/"
+                className="rounded-xl border border-gray-300 px-5 py-3 font-semibold text-gray-700 transition hover:bg-gray-50"
+              >
+                হোমপেজে ফিরে যান
+              </Link>
+            </div>
           </div>
         ) : category ? (
           <>
@@ -206,15 +219,9 @@ export default function CategoryPage() {
                   }
                   className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-800 outline-none transition focus:border-green-600 focus:ring-2 focus:ring-green-100"
                 >
-                  <option value="default">
-                    ডিফল্ট ক্রম
-                  </option>
-                  <option value="price-asc">
-                    দাম: কম থেকে বেশি
-                  </option>
-                  <option value="price-desc">
-                    দাম: বেশি থেকে কম
-                  </option>
+                  <option value="default">ডিফল্ট ক্রম</option>
+                  <option value="price-asc">দাম: কম থেকে বেশি</option>
+                  <option value="price-desc">দাম: বেশি থেকে কম</option>
                 </select>
               </div>
             </div>
@@ -226,8 +233,6 @@ export default function CategoryPage() {
           </>
         ) : null}
       </section>
-
-     
     </main>
   );
 }
