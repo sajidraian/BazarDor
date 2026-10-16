@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🛒 বাজার দর (BazarDor)
 
-## Getting Started
+A web application for exploring daily commodity prices in Bangladesh. Browse products by category, view product details, and access your account through authentication pages.
 
-First, run the development server:
+## ✨ Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Product Listing:** Browse available products and their prices.
+- **Category Filtering:** Explore products by category.
+- **Product Details:** Open individual product detail pages.
+- **Price Ticker:** View a price ticker on the homepage.
+- **Authentication:** Sign-in and sign-up pages.
+- **User Profile:** Access and update profile information.
+- **Responsive Design:** Layout designed for mobile, tablet, and desktop screens.
+- **Bangla Interface:** A user-friendly interface for Bangladeshi users.
+
+## 🛠️ Technologies Used
+
+- Next.js
+- React
+- TypeScript
+- CSS
+- npm
+- BazarDor API
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+Install Node.js and npm before starting.
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/sajidraian/BazarDor.git
+   ```
+
+2. Navigate to the project directory:
+
+   ```bash
+   cd BazarDor
+   ```
+
+3. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+4. Configure any required environment variables in a local `.env.local` file. Never commit secret keys or credentials to GitHub.
+
+5. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+6. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## 📁 Project Structure
+
+```text
+bazardor/
+├── public/
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   ├── category/
+│   │   ├── product/
+│   │   ├── profile/
+│   │   ├── sign-in/
+│   │   ├── sign-up/
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   ├── components/
+│   └── lib/
+├── package.json
+└── README.md
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🔗 API
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The project uses the BazarDor API provided for the Programming Hero assignment. API availability and endpoint configuration may affect the data displayed.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🏗️ Build
 
-## Learn More
+To create a production build, run:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🌐 Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The application can be deployed on a platform that supports Next.js, such as Vercel. Configure all required environment variables in the deployment platform before deploying.
 
-## Deploy on Vercel
+## 👨‍💻 Author
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Sajid Al Raian**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+GitHub: [@sajidraian](https://github.com/sajidraian)
+
+## 📄 License
+
+This project was created for educational purposes as part of a Programming Hero assignment.
