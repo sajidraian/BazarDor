@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -61,6 +62,21 @@ function PriceHistory({
   );
 }
 
+function LoadingSkeleton() {
+  return (
+    <div className="animate-pulse space-y-6">
+      <div className="h-8 w-64 rounded bg-gray-200" />
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="h-72 rounded-2xl bg-gray-200" />
+        <div className="h-72 rounded-2xl bg-gray-200" />
+      </div>
+
+      <div className="h-48 rounded-2xl bg-gray-200" />
+    </div>
+  );
+}
+
 export default function ProductDetailPage() {
   const params = useParams<{ slug: string }>();
   const router = useRouter();
@@ -73,6 +89,7 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
     if (sessionPending) return;
@@ -91,22 +108,25 @@ export default function ProductDetailPage() {
   }, [session, sessionPending, router]);
 
   useEffect(() => {
-    if (sessionPending || !session) return;
+    if (sessionPending || !session) {
+      setLoading(true);
+      return;
+    }
 
     let active = true;
 
     async function loadProduct() {
-      try {
-        setLoading(true);
-        setError("");
+      setLoading(true);
+      setError("");
+      setProduct(null);
 
+      try {
         const products = await getProducts();
         const found = products.find((item) => item.slug === slug);
 
         if (!active) return;
 
         if (!found) {
-          setProduct(null);
           setError("এই পণ্যটি খুঁজে পাওয়া যায়নি।");
           return;
         }
@@ -114,7 +134,6 @@ export default function ProductDetailPage() {
         setProduct(found);
       } catch {
         if (active) {
-          setProduct(null);
           setError("পণ্যের তথ্য লোড করা যায়নি। আবার চেষ্টা করুন।");
         }
       } finally {
@@ -124,39 +143,56 @@ export default function ProductDetailPage() {
       }
     }
 
-    loadProduct();
+    void loadProduct();
 
     return () => {
       active = false;
     };
-  }, [slug, session, sessionPending]);
+  }, [slug, session, sessionPending, retry]);
+
+  const markets = product?.markets ?? [];
+
+  const validMarkets = markets
+    .map((market) => ({
+      ...market,
+      min: Number(market.min),
+      max: Number(market.max),
+    }))
+    .filter(
+      (market) =>
+        Number.isFinite(market.min) &&
+        Number.isFinite(market.max) &&
+        market.min >= 0 &&
+        market.max >= market.min
+    );
+
+  const minPrice =
+    validMarkets.length > 0
+      ? Math.min(...validMarkets.map((market) => market.min))
+      : product?.today ?? 0;
+
+  const maxPrice =
+    validMarkets.length > 0
+      ? Math.max(...validMarkets.map((market) => market.max))
+      : product?.today ?? 0;
+
+  const averagePrice =
+    validMarkets.length > 0
+      ? validMarkets.reduce(
+          (total, market) => total + (market.min + market.max) / 2,
+          0
+        ) / validMarkets.length
+      : product?.today ?? 0;
 
   if (sessionPending || !session) {
     return (
       <main className="container-main min-h-screen py-12">
-        <div className="mx-auto max-w-4xl animate-pulse space-y-5">
-          <div className="h-8 w-2/3 rounded bg-gray-200" />
-          <div className="grid gap-5 md:grid-cols-2">
-            <div className="h-64 rounded-2xl bg-gray-200" />
-            <div className="h-64 rounded-2xl bg-gray-200" />
-          </div>
+        <div className="mx-auto max-w-4xl">
+          <LoadingSkeleton />
         </div>
       </main>
     );
   }
-
-  // Derive market prices and averages safely
-  const markets = product?.markets ?? [];
-  const marketMinPrices = markets.map((m) => Number(m.min)).filter(Number.isFinite);
-  const marketMaxPrices = markets.map((m) => Number(m.max)).filter(Number.isFinite);
-
-  const minPrice = marketMinPrices.length > 0 ? Math.min(...marketMinPrices) : product?.today ?? 0;
-  const maxPrice = marketMaxPrices.length > 0 ? Math.max(...marketMaxPrices) : product?.today ?? 0;
-  
-  const averagePrice = 
-    marketMinPrices.length > 0 && marketMaxPrices.length > 0
-      ? (marketMinPrices.reduce((a, b) => a + b, 0) + marketMaxPrices.reduce((a, b) => a + b, 0)) / (marketMinPrices.length + marketMaxPrices.length)
-      : product?.today ?? 0;
 
   return (
     <main className="min-h-screen bg-[#f7faf8]">
@@ -172,51 +208,70 @@ export default function ProductDetailPage() {
         </Link>
 
         {loading ? (
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 w-64 rounded bg-gray-200" />
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="h-72 rounded-2xl bg-gray-200" />
-              <div className="h-72 rounded-2xl bg-gray-200" />
-            </div>
-            <div className="h-48 rounded-2xl bg-gray-200" />
-          </div>
+          <LoadingSkeleton />
         ) : error ? (
-          <div className="rounded-2xl border border-gray-200 bg-white p-10 text-center shadow-sm">
+          <div
+            className="rounded-2xl border border-gray-200 bg-white p-10 text-center shadow-sm"
+            role="alert"
+          >
             <p className="mb-3 text-4xl" aria-hidden="true">
               🔎
             </p>
+
             <h1 className="text-xl font-bold text-gray-900">
               {error}
             </h1>
-            <Link
-              href="/"
-              className="mt-5 inline-block rounded-xl bg-[#21875a] px-5 py-3 font-semibold text-white hover:bg-[#176b45]"
-            >
-              হোমপেজে ফিরে যান
-            </Link>
+
+            <p className="mt-2 text-sm text-gray-500">
+              ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করো।
+            </p>
+
+            <div className="mt-5 flex flex-wrap justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setRetry((previous) => previous + 1)}
+                className="rounded-xl bg-[#21875a] px-5 py-3 font-semibold text-white transition hover:bg-[#176b45]"
+              >
+                আবার চেষ্টা করুন
+              </button>
+
+              <Link
+                href="/"
+                className="rounded-xl border border-gray-300 px-5 py-3 font-semibold text-gray-700 transition hover:bg-gray-50"
+              >
+                হোমপেজে ফিরে যান
+              </Link>
+            </div>
           </div>
         ) : product ? (
           <>
-            {/* Breadcrumb & Header Info */}
-            <div className="mb-8">
-              <nav className="mb-3 flex items-center gap-2 text-xs text-gray-500 sm:text-sm">
-                <Link href="/" className="hover:text-[#21875a]">
-                  হোম
-                </Link>
-                <span>/</span>
-                <Link
-                  href={`/category/${product.category}`}
-                  className="hover:text-[#21875a]"
-                >
-                  {product.categoryNameBn || product.category}
-                </Link>
-                <span>/</span>
-                <span className="font-medium text-gray-800">{product.nameBn}</span>
-              </nav>
-            </div>
+            {/* Breadcrumb */}
+            <nav
+              aria-label="Breadcrumb"
+              className="mb-6 flex flex-wrap items-center gap-2 text-xs text-gray-500 sm:text-sm"
+            >
+              <Link href="/" className="hover:text-[#21875a]">
+                হোম
+              </Link>
 
-            {/* Top Main Product Overview Card */}
-            <div className="mb-8 flex flex-col justify-between gap-6 rounded-2xl border border-[#e3ebe4] bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:p-8">
+              <span>/</span>
+
+              <Link
+                href={`/category/${product.category}`}
+                className="hover:text-[#21875a]"
+              >
+                {product.categoryNameBn || product.category}
+              </Link>
+
+              <span>/</span>
+
+              <span className="font-medium text-gray-800">
+                {product.nameBn}
+              </span>
+            </nav>
+
+            {/* Main Product Overview */}
+            <section className="mb-8 flex flex-col justify-between gap-6 rounded-2xl border border-[#e3ebe4] bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:p-8">
               <div className="flex items-start gap-4 sm:items-center sm:gap-6">
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#f0f7f1] text-4xl sm:h-20 sm:w-20 sm:text-5xl">
                   {product.image || product.categoryIcon || "🛒"}
@@ -226,46 +281,74 @@ export default function ProductDetailPage() {
                   <h1 className="text-2xl font-black text-[#233527] sm:text-3xl">
                     {product.nameBn}
                   </h1>
+
                   <p className="mt-1 text-xs text-gray-500 sm:text-sm">
                     প্রতি {product.unit} - {product.categoryNameBn}
                   </p>
-                  
+
                   <p className="mt-2 text-xs font-medium text-gray-600 sm:text-sm">
                     গতকালকের তুলনায় আজ দাম{" "}
-                    <span className={product.change.dir === "up" ? "text-[#21875a] font-bold" : product.change.dir === "down" ? "text-[#d94a42] font-bold" : "font-bold"}>
-                      {product.change.dir === "up" ? "বেড়েছে" : product.change.dir === "down" ? "কমেছে" : "অপরিবর্তিত"} {formatChange(product.change.pct)}
+                    <span
+                      className={
+                        product.change.dir === "up"
+                          ? "font-bold text-[#21875a]"
+                          : product.change.dir === "down"
+                            ? "font-bold text-[#d94a42]"
+                            : "font-bold text-gray-600"
+                      }
+                    >
+                      {product.change.dir === "up"
+                        ? "বেড়েছে"
+                        : product.change.dir === "down"
+                          ? "কমেছে"
+                          : "অপরিবর্তিত"}{" "}
+                      {formatChange(product.change.pct)}
                     </span>
                   </p>
                 </div>
               </div>
 
-              {/* Today's Average Price Badge Box */}
-              <div className="flex shrink-0 flex-col items-start rounded-xl bg-[#f8faf8] border border-[#ebf2ec] p-4 text-left sm:items-end sm:text-right">
-                <span className="text-xs font-semibold text-gray-500">আজকের গড় দাম</span>
+              <div className="flex shrink-0 flex-col items-start rounded-xl border border-[#ebf2ec] bg-[#f8faf8] p-4 sm:items-end sm:text-right">
+                <span className="text-xs font-semibold text-gray-500">
+                  আজকের গড় দাম
+                </span>
+
                 <div className="mt-1 text-2xl font-black text-[#21875a] sm:text-3xl">
                   ৳{formatBengaliPrice(product.today)}
                 </div>
-                <span className="text-xs text-gray-500">টাকা / {product.unit}</span>
-                
+
+                <span className="text-xs text-gray-500">
+                  টাকা / {product.unit}
+                </span>
+
                 <span
                   className={`mt-2 inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-bold ${
                     product.change.dir === "up"
                       ? "bg-[#e7f5eb] text-[#21875a]"
                       : product.change.dir === "down"
-                      ? "bg-[#fff0ee] text-[#d94a42]"
-                      : "bg-gray-100 text-gray-600"
+                        ? "bg-[#fff0ee] text-[#d94a42]"
+                        : "bg-gray-100 text-gray-600"
                   }`}
                 >
-                  <span>{product.change.dir === "up" ? "▲" : product.change.dir === "down" ? "▼" : "—"}</span>
+                  <span>
+                    {product.change.dir === "up"
+                      ? "▲"
+                      : product.change.dir === "down"
+                        ? "▼"
+                        : "—"}
+                  </span>
+
                   <span>{formatChange(product.change.pct)}</span>
                 </span>
               </div>
-            </div>
+            </section>
 
-            {/* Price Summary Section */}
+            {/* Price Summary */}
             <section className="mb-8 space-y-3">
-              <h2 className="text-lg font-bold text-[#233527]">দামের সারসংক্ষেপ</h2>
-              
+              <h2 className="text-lg font-bold text-[#233527]">
+                দামের সারসংক্ষেপ
+              </h2>
+
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <PriceSummary
                   label="সর্বনিম্ন দাম"
@@ -273,12 +356,14 @@ export default function ProductDetailPage() {
                   description="সবচেয়ে কম দামের বাজার"
                   colorClass="text-[#21875a]"
                 />
+
                 <PriceSummary
                   label="সর্বোচ্চ দাম"
                   price={maxPrice}
                   description="সবচেয়ে বেশি দামের বাজার"
                   colorClass="text-[#d94a42]"
                 />
+
                 <PriceSummary
                   label="গড় দাম"
                   price={averagePrice}
@@ -288,7 +373,7 @@ export default function ProductDetailPage() {
               </div>
             </section>
 
-            {/* Price History Section */}
+            {/* Price History */}
             <section className="mb-8">
               <h2 className="mb-4 text-lg font-bold text-[#233527]">
                 দামের ইতিহাস
@@ -304,53 +389,67 @@ export default function ProductDetailPage() {
 
             {/* Market-wise Price Table */}
             <section className="overflow-hidden rounded-2xl border border-[#e3ebe4] bg-white shadow-sm">
-              <div className="border-b border-[#e3ebe4] p-5 md:p-6 bg-[#f4f8f5]">
+              <div className="border-b border-[#e3ebe4] bg-[#f4f8f5] p-5 md:p-6">
                 <h2 className="text-lg font-bold text-[#233527]">
                   বাজারভিত্তিক আজকের দাম
                 </h2>
+
                 <p className="mt-1 text-xs text-gray-500">
                   বিভিন্ন বাজারে উপলব্ধ সর্বনিম্ন ও সর্বোচ্চ দাম
                 </p>
               </div>
 
-              {markets.length > 0 ? (
+              {validMarkets.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[540px] text-left text-sm">
-                    <thead className="bg-[#f9fbf9] text-gray-700 border-b border-[#e3ebe4]">
+                    <thead className="border-b border-[#e3ebe4] bg-[#f9fbf9] text-gray-700">
                       <tr>
-                        <th className="px-5 py-4 font-bold">বাজার</th>
-                        <th className="px-5 py-4 font-bold">বিভাগ</th>
-                        <th className="px-5 py-4 font-bold text-center">সর্বনিম্ন</th>
-                        <th className="px-5 py-4 font-bold text-center">সর্বোচ্চ</th>
-                        <th className="px-5 py-4 font-bold text-right">গড়</th>
+                        <th scope="col" className="px-5 py-4 font-bold">
+                          বাজার
+                        </th>
+                        <th scope="col" className="px-5 py-4 font-bold">
+                          বিভাগ
+                        </th>
+                        <th scope="col" className="px-5 py-4 text-center font-bold">
+                          সর্বনিম্ন
+                        </th>
+                        <th scope="col" className="px-5 py-4 text-center font-bold">
+                          সর্বোচ্চ
+                        </th>
+                        <th scope="col" className="px-5 py-4 text-right font-bold">
+                          গড়
+                        </th>
                       </tr>
                     </thead>
 
                     <tbody className="divide-y divide-[#edf2ed] text-gray-700">
-                      {markets.map((market, index) => {
-                        const mMin = Number(market.min);
-                        const mMax = Number(market.max);
-                        const mAvg = (mMin + mMax) / 2;
+                      {validMarkets.map((market, index) => {
+                        const marketAverage =
+                          (market.min + market.max) / 2;
 
                         return (
                           <tr
                             key={`${market.market}-${index}`}
-                            className="hover:bg-[#f9fbf9] transition"
+                            className="transition hover:bg-[#f9fbf9]"
                           >
                             <td className="px-5 py-4 font-medium text-gray-900">
                               {market.market}
                             </td>
+
                             <td className="px-5 py-4 text-gray-500">
                               {market.division}
                             </td>
-                            <td className="px-5 py-4 font-semibold text-[#21875a] text-center">
-                              ৳{formatBengaliPrice(mMin)}
+
+                            <td className="px-5 py-4 text-center font-semibold text-[#21875a]">
+                              ৳{formatBengaliPrice(market.min)}
                             </td>
-                            <td className="px-5 py-4 font-semibold text-[#d94a42] text-center">
-                              ৳{formatBengaliPrice(mMax)}
+
+                            <td className="px-5 py-4 text-center font-semibold text-[#d94a42]">
+                              ৳{formatBengaliPrice(market.max)}
                             </td>
-                            <td className="px-5 py-4 font-semibold text-gray-800 text-right">
-                              ৳{formatBengaliPrice(mAvg)}
+
+                            <td className="px-5 py-4 text-right font-semibold text-gray-800">
+                              ৳{formatBengaliPrice(marketAverage)}
                             </td>
                           </tr>
                         );
@@ -365,6 +464,7 @@ export default function ProductDetailPage() {
               )}
             </section>
 
+            {/* Back to Products */}
             <div className="mt-8">
               <Link
                 href="/"
