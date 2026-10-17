@@ -47,8 +47,6 @@ export default function Navbar() {
 
   const user = session?.user;
 
-  // Automatically open the desktop user menu on the homepage
-  // when a signed-in user's session has loaded.
   useEffect(() => {
     if (pathname === "/" && !isPending && user) {
       setUserMenuOpen(true);
@@ -57,7 +55,7 @@ export default function Navbar() {
     }
   }, [pathname, isPending, user]);
 
-  // Close the dropdown when clicking outside or pressing Escape.
+  
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -226,7 +224,6 @@ export default function Navbar() {
         );
       }
 
-      // Desktop profile dropdown.
       return (
         <div className="relative" ref={dropdownRef}>
           <button
@@ -253,7 +250,7 @@ export default function Navbar() {
 
           {userMenuOpen && (
             <div className="absolute right-0 top-full z-[9999] mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-2xl border border-gray-200 bg-white p-4 shadow-xl">
-              {/* User information */}
+          
               <Link
                 href="/profile"
                 onClick={() => setUserMenuOpen(false)}
@@ -281,7 +278,6 @@ export default function Navbar() {
                 />
               </Link>
 
-              {/* Sign out */}
               <div className="pt-3">
                 <button
                   type="button"
@@ -331,7 +327,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-[#e5e7eb] bg-white">
-      {/* Logo and account menu */}
+    
       <div className="container-main flex min-h-[68px] items-center justify-between gap-3 py-2">
         <Link
           href="/"
@@ -373,7 +369,6 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Desktop categories */}
       <nav
         aria-label="পণ্যের বিভাগ"
         className="border-t border-[#edf2ed]"
@@ -383,7 +378,7 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile menu */}
+ 
       {menuOpen && (
         <div className="border-t border-[#edf2ed] bg-white px-4 py-4 shadow-lg sm:hidden">
           <nav
