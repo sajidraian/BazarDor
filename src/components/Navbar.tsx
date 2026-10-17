@@ -47,7 +47,7 @@ export default function Navbar() {
 
   const user = session?.user;
 
-  // Automatically open the user menu on the home page
+  // Automatically open the desktop user menu on the homepage
   // when a signed-in user's session has loaded.
   useEffect(() => {
     if (pathname === "/" && !isPending && user) {
@@ -226,7 +226,7 @@ export default function Navbar() {
         );
       }
 
-      // Desktop profile menu
+      // Desktop profile dropdown.
       return (
         <div className="relative" ref={dropdownRef}>
           <button
