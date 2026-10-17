@@ -47,7 +47,17 @@ export default function Navbar() {
 
   const user = session?.user;
 
-  // Close the profile dropdown when clicking outside or pressing Escape.
+  // Automatically open the user menu on the home page
+  // when a signed-in user's session has loaded.
+  useEffect(() => {
+    if (pathname === "/" && !isPending && user) {
+      setUserMenuOpen(true);
+    } else {
+      setUserMenuOpen(false);
+    }
+  }, [pathname, isPending, user]);
+
+  // Close the dropdown when clicking outside or pressing Escape.
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -216,7 +226,7 @@ export default function Navbar() {
         );
       }
 
-      // Desktop profile dropdown
+      // Desktop profile menu
       return (
         <div className="relative" ref={dropdownRef}>
           <button
@@ -242,14 +252,10 @@ export default function Navbar() {
           </button>
 
           {userMenuOpen && (
-            <div
-              role="menu"
-              className="absolute right-0 top-full z-[9999] mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-2xl border border-gray-200 bg-white p-4 shadow-xl"
-            >
-              {/* User profile information */}
+            <div className="absolute right-0 top-full z-[9999] mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-2xl border border-gray-200 bg-white p-4 shadow-xl">
+              {/* User information */}
               <Link
                 href="/profile"
-                role="menuitem"
                 onClick={() => setUserMenuOpen(false)}
                 className="flex min-w-0 items-center gap-3 border-b border-gray-100 pb-4 transition hover:opacity-80"
               >
@@ -279,7 +285,6 @@ export default function Navbar() {
               <div className="pt-3">
                 <button
                   type="button"
-                  role="menuitem"
                   onClick={handleSignOut}
                   disabled={loggingOut}
                   className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#ffdada] bg-[#fff5f5] py-2.5 text-xs font-semibold text-[#d94a42] transition hover:bg-[#ffebee] disabled:cursor-not-allowed disabled:opacity-50"
@@ -326,7 +331,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-[#e5e7eb] bg-white">
-      {/* Logo and account actions */}
+      {/* Logo and account menu */}
       <div className="container-main flex min-h-[68px] items-center justify-between gap-3 py-2">
         <Link
           href="/"
@@ -368,7 +373,7 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Desktop category navigation */}
+      {/* Desktop categories */}
       <nav
         aria-label="পণ্যের বিভাগ"
         className="border-t border-[#edf2ed]"
@@ -378,7 +383,7 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile navigation */}
+      {/* Mobile menu */}
       {menuOpen && (
         <div className="border-t border-[#edf2ed] bg-white px-4 py-4 shadow-lg sm:hidden">
           <nav

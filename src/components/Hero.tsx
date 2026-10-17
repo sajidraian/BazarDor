@@ -2,193 +2,110 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowDown, TrendingUp } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Scale } from "lucide-react";
 import MarketComparison from "@/components/MarketComparison";
 
-export default function Hero() {
-  const [isComparisonOpen, setIsComparisonOpen] = useState(false);
-
-  const today = new Intl.DateTimeFormat("bn-BD", {
+function getBanglaDate() {
+  return new Intl.DateTimeFormat("bn-BD", {
+    weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
-    weekday: "long",
   }).format(new Date());
+}
 
-  const openComparison = () => {
-    setIsComparisonOpen(true);
-  };
+const stats = [
+  {
+    label: "বিভাগ",
+    value: "৬",
+    description: "টি বিভাগের তথ্য",
+  },
+  {
+    label: "বাজার",
+    value: "১২",
+    description: "টি বাজার অন্তর্ভুক্ত",
+  },
+  {
+    label: "পণ্য",
+    value: "৩৩",
+    description: "টি নিত্যদিনের পণ্য",
+  },
+];
 
-  const closeComparison = () => {
-    setIsComparisonOpen(false);
-  };
+export default function Hero() {
+  const [comparisonOpen, setComparisonOpen] = useState(false);
 
   return (
     <>
-      <section className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-amber-50">
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-2 lg:gap-16 lg:px-8">
-          {/* Left content */}
-          <div className="relative z-10">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white/80 px-4 py-2 text-sm font-medium text-orange-700 shadow-sm">
-              <TrendingUp className="h-4 w-4" />
-              <span>আজকের বাজারদর এক জায়গায়</span>
-            </div>
+      <section className="container-main pt-5 sm:pt-7">
+        <div className="grid items-center gap-6 rounded-2xl border border-[#e5eee6] bg-[#fbfdfb] px-5 py-6 shadow-sm sm:px-8 sm:py-8 lg:grid-cols-[1.35fr_0.85fr] lg:gap-8 lg:px-9 lg:py-9">
+          {/* Left: Hero Content */}
+          <div className="relative z-10 min-w-0">
+            <span className="inline-flex items-center rounded-full bg-[#e3f2e7] px-3 py-1 text-xs font-semibold text-[#21875a]">
+              {getBanglaDate()}
+            </span>
 
-            <h1 className="max-w-2xl text-4xl font-extrabold leading-tight tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
-              সঠিক বাজারদর,
-              <span className="mt-2 block text-orange-600">
-                সাশ্রয়ী কেনাকাটা
-              </span>
+            <h1 className="mt-3 text-2xl font-black leading-snug tracking-tight text-gray-900 sm:text-3xl">
+              আজকের বাজারের দাম এক নজরে
             </h1>
 
-            <p className="mt-5 max-w-xl text-base leading-8 text-gray-600 sm:text-lg">
-              বাংলাদেশের বিভিন্ন বাজারের নিত্যপ্রয়োজনীয় পণ্যের দাম জানুন।
-              বাজারদর তুলনা করে আপনার কেনাকাটার সিদ্ধান্ত নিন আরও সহজে।
+            <p className="mt-3 max-w-xl text-xs leading-relaxed text-gray-500 sm:text-sm sm:leading-6">
+              চাল, ডাল, তেল, সবজি, মাছ, মাংস, ডিম ও মসলার দাম —
+              বাজারভিত্তিক বিস্তারিত, গড়, সর্বনিম্ন-সর্বাধিক এবং
+              দামের পরিবর্তন এক জায়গায়।
             </p>
 
-            <p className="mt-4 text-sm text-gray-500">
-              <span className="font-semibold text-gray-700">আজ:</span>{" "}
-              {today}
-            </p>
-
-            {/* Action buttons */}
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <a
-                href="#products"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-orange-600 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+            {/* Action Buttons */}
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <Link
+                href="#সব-পণ্য"
+                className="inline-flex items-center gap-2 rounded-lg bg-[#21875a] px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#176b45] sm:text-sm"
               >
                 সব পণ্য দেখুন
-                <ArrowDown className="h-4 w-4" />
-              </a>
+                <ArrowRight size={16} />
+              </Link>
 
-              {/* Penpot shape: ⚖️ বাজার তুলনা */}
               <button
                 type="button"
-                onClick={openComparison}
-                className="inline-flex items-center justify-center rounded-lg border border-orange-500 bg-white px-5 py-3 font-semibold text-orange-600 transition hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+                onClick={() => setComparisonOpen(true)}
+                className="inline-flex items-center gap-2 rounded-lg border border-[#d7e2d9] bg-white px-4 py-2.5 text-xs font-semibold text-gray-700 transition hover:border-[#21875a] hover:bg-[#f0f7f1] sm:text-sm"
               >
-                ⚖️ বাজার তুলনা
+                <Scale size={15} />
+                বাজার তুলনা
               </button>
-            </div>
-
-            {/* Stats */}
-            <div className="mt-10 grid max-w-lg grid-cols-3 gap-4 border-t border-orange-100 pt-6">
-              <div>
-                <p className="text-2xl font-extrabold text-gray-900 sm:text-3xl">
-                  ৬
-                </p>
-                <p className="mt-1 text-xs text-gray-500 sm:text-sm">
-                  বিভাগ
-                </p>
-              </div>
-
-              <div>
-                <p className="text-2xl font-extrabold text-gray-900 sm:text-3xl">
-                  ১২+
-                </p>
-                <p className="mt-1 text-xs text-gray-500 sm:text-sm">
-                  পণ্যের ধরন
-                </p>
-              </div>
-
-              <div>
-                <p className="text-2xl font-extrabold text-gray-900 sm:text-3xl">
-                  ৩৩+
-                </p>
-                <p className="mt-1 text-xs text-gray-500 sm:text-sm">
-                  বাজার
-                </p>
-              </div>
             </div>
           </div>
 
-          {/* Right visual */}
-          <div className="relative mx-auto w-full max-w-lg">
-            <div className="absolute -right-5 -top-5 h-28 w-28 rounded-full bg-orange-200/50 blur-2xl" />
-            <div className="absolute -bottom-5 -left-5 h-32 w-32 rounded-full bg-amber-200/50 blur-2xl" />
+          {/* Right: Statistics */}
+          <div className="grid grid-cols-3 gap-2 rounded-xl border border-[#e5eee6] bg-[#f0f6f1] p-3 sm:gap-3 sm:p-4">
+            {stats.map((stat) => (
+              <div
+                key={stat.label}
+                className="flex min-w-0 flex-col justify-center rounded-lg px-1 py-3 sm:px-2"
+              >
+                <span className="text-[10px] font-medium text-gray-500 sm:text-xs">
+                  {stat.label}
+                </span>
 
-            <div className="relative rounded-3xl border border-orange-100 bg-white p-5 shadow-xl sm:p-7">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm text-gray-500">
-                    বাজারদরের আপডেট
-                  </p>
-                  <h2 className="mt-1 text-xl font-bold text-gray-900">
-                    আজকের বাজার
-                  </h2>
-                </div>
+                <span className="mt-1 text-2xl font-extrabold leading-tight text-[#21875a] sm:text-3xl">
+                  {stat.value}
+                </span>
 
-                <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-700">
-                  বাজারদর
+                <span className="mt-1 text-[9px] leading-4 text-gray-500 sm:text-[10px]">
+                  {stat.description}
                 </span>
               </div>
-
-              <div className="mt-6 space-y-3">
-                <div className="flex items-center justify-between rounded-xl bg-orange-50 p-4">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">🍚</span>
-                    <div>
-                      <p className="font-semibold text-gray-900">চাল</p>
-                      <p className="text-xs text-gray-500">
-                        নিত্যপ্রয়োজনীয় পণ্য
-                      </p>
-                    </div>
-                  </div>
-
-                  <span className="text-sm font-bold text-orange-700">
-                    দাম তুলনা করুন
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between rounded-xl bg-amber-50 p-4">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">🫘</span>
-                    <div>
-                      <p className="font-semibold text-gray-900">ডাল</p>
-                      <p className="text-xs text-gray-500">
-                        নিত্যপ্রয়োজনীয় পণ্য
-                      </p>
-                    </div>
-                  </div>
-
-                  <span className="text-sm font-bold text-amber-700">
-                    দাম তুলনা করুন
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between rounded-xl bg-green-50 p-4">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">🧅</span>
-                    <div>
-                      <p className="font-semibold text-gray-900">পেঁয়াজ</p>
-                      <p className="text-xs text-gray-500">
-                        নিত্যপ্রয়োজনীয় পণ্য
-                      </p>
-                    </div>
-                  </div>
-
-                  <span className="text-sm font-bold text-green-700">
-                    দাম তুলনা করুন
-                  </span>
-                </div>
-              </div>
-
-              {/* Same Penpot button shape */}
-              <button
-                type="button"
-                onClick={openComparison}
-                className="mt-5 flex w-full items-center justify-center rounded-xl bg-orange-600 px-4 py-3 font-semibold text-white transition hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
-              >
-                ⚖️ বাজার তুলনা
-              </button>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Market comparison modal */}
-      {isComparisonOpen && (
-        <MarketComparison onClose={closeComparison} />
+      {/* Market Comparison Modal */}
+      {comparisonOpen && (
+        <MarketComparison
+          onClose={() => setComparisonOpen(false)}
+        />
       )}
     </>
   );
