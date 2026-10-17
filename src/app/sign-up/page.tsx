@@ -89,12 +89,12 @@ export default function SignUpPage() {
 
   return (
     <main className="min-h-screen bg-[#f4f7f4]">
-      {/* Top Navbar & Ticker */}
+  
       <Navbar />
       <PriceTicker />
 
       <div className="container-main py-10 md:py-14">
-        {/* Header Title & Subtitle */}
+        
         <div className="text-center mb-8">
           <h1 className="text-2xl font-black text-[#1e2920] md:text-3xl">
             অ্যাকাউন্ট তৈরি করুন
@@ -104,10 +104,9 @@ export default function SignUpPage() {
           </p>
         </div>
 
-        {/* Card Form */}
         <div className="mx-auto max-w-md rounded-2xl border border-[#e3ebe4] bg-white p-6 shadow-sm sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Name Input */}
+           
             <div>
               <label
                 htmlFor="name"
@@ -127,7 +126,7 @@ export default function SignUpPage() {
               />
             </div>
 
-            {/* Email Input */}
+      
             <div>
               <label
                 htmlFor="email"
@@ -147,7 +146,7 @@ export default function SignUpPage() {
               />
             </div>
 
-            {/* Password Input */}
+      
             <div>
               <label
                 htmlFor="password"
@@ -168,7 +167,6 @@ export default function SignUpPage() {
               />
             </div>
 
-            {/* Confirm Password Input */}
             <div>
               <label
                 htmlFor="confirmPassword"
@@ -189,7 +187,7 @@ export default function SignUpPage() {
               />
             </div>
 
-            {/* Submit Button */}
+     
             <button
               type="submit"
               disabled={loading || !!socialLoading}
@@ -199,7 +197,7 @@ export default function SignUpPage() {
             </button>
           </form>
 
-          {/* Divider */}
+      
           <div className="relative my-6 text-center">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-200" />
@@ -209,7 +207,7 @@ export default function SignUpPage() {
             </span>
           </div>
 
-          {/* Social Sign Up Buttons */}
+
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
@@ -251,7 +249,7 @@ export default function SignUpPage() {
             </button>
           </div>
 
-          {/* Sign In Redirect Link */}
+         
           <p className="mt-6 text-center text-xs text-gray-600">
             অ্যাকাউন্ট আছে?{" "}
             <Link
@@ -263,7 +261,7 @@ export default function SignUpPage() {
           </p>
         </div>
 
-        {/* Back to Home Link */}
+       
         <div className="mt-6 text-center">
           <Link
             href="/"

@@ -245,7 +245,7 @@ export default function ProductDetailPage() {
           </div>
         ) : product ? (
           <>
-            {/* Breadcrumb */}
+      
             <nav
               aria-label="Breadcrumb"
               className="mb-6 flex flex-wrap items-center gap-2 text-xs text-gray-500 sm:text-sm"
@@ -270,7 +270,7 @@ export default function ProductDetailPage() {
               </span>
             </nav>
 
-            {/* Main Product Overview */}
+           
             <section className="mb-8 flex flex-col justify-between gap-6 rounded-2xl border border-[#e3ebe4] bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:p-8">
               <div className="flex items-start gap-4 sm:items-center sm:gap-6">
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#f0f7f1] text-4xl sm:h-20 sm:w-20 sm:text-5xl">
@@ -343,7 +343,7 @@ export default function ProductDetailPage() {
               </div>
             </section>
 
-            {/* Price Summary */}
+       
             <section className="mb-8 space-y-3">
               <h2 className="text-lg font-bold text-[#233527]">
                 দামের সারসংক্ষেপ
@@ -373,7 +373,7 @@ export default function ProductDetailPage() {
               </div>
             </section>
 
-            {/* Price History */}
+    
             <section className="mb-8">
               <h2 className="mb-4 text-lg font-bold text-[#233527]">
                 দামের ইতিহাস
@@ -387,7 +387,7 @@ export default function ProductDetailPage() {
               </div>
             </section>
 
-            {/* Market-wise Price Table */}
+   
             <section className="overflow-hidden rounded-2xl border border-[#e3ebe4] bg-white shadow-sm">
               <div className="border-b border-[#e3ebe4] bg-[#f4f8f5] p-5 md:p-6">
                 <h2 className="text-lg font-bold text-[#233527]">
@@ -464,7 +464,6 @@ export default function ProductDetailPage() {
               )}
             </section>
 
-            {/* Back to Products */}
             <div className="mt-8">
               <Link
                 href="/"

@@ -69,12 +69,12 @@ export default function SignInPage() {
 
   return (
     <main className="min-h-screen bg-[#f4f7f4]">
-      {/* Navbar & Price Ticker */}
+  
       <Navbar />
       <PriceTicker />
 
       <div className="container-main py-10 md:py-14">
-        {/* Header Title & Subtitle */}
+ 
         <div className="text-center mb-8">
           <h1 className="text-2xl font-black text-[#1e2920] md:text-3xl">
             সাইন ইন
@@ -84,10 +84,10 @@ export default function SignInPage() {
           </p>
         </div>
 
-        {/* Sign In Card */}
+   
         <div className="mx-auto max-w-md rounded-2xl border border-[#e3ebe4] bg-white p-6 shadow-sm sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email Input */}
+  
             <div>
               <label
                 htmlFor="email"
@@ -107,7 +107,7 @@ export default function SignInPage() {
               />
             </div>
 
-            {/* Password Input */}
+
             <div>
               <label
                 htmlFor="password"
@@ -127,7 +127,7 @@ export default function SignInPage() {
               />
             </div>
 
-            {/* Submit Button */}
+
             <button
               type="submit"
               disabled={loading || !!socialLoading}
@@ -137,7 +137,7 @@ export default function SignInPage() {
             </button>
           </form>
 
-          {/* Divider */}
+      
           <div className="relative my-6 text-center">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-200" />
@@ -147,7 +147,7 @@ export default function SignInPage() {
             </span>
           </div>
 
-          {/* Social Sign In Buttons */}
+
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
@@ -189,7 +189,7 @@ export default function SignInPage() {
             </button>
           </div>
 
-          {/* Sign Up Redirect Link */}
+        
           <p className="mt-6 text-center text-xs text-gray-600">
             অ্যাকাউন্ট নেই?{" "}
             <Link
@@ -201,7 +201,7 @@ export default function SignInPage() {
           </p>
         </div>
 
-        {/* Back to Home Link */}
+       
         <div className="mt-6 text-center">
           <Link
             href="/"

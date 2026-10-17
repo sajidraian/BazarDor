@@ -84,12 +84,12 @@ export default function UpdateInformationPage() {
 
   return (
     <main className="min-h-screen bg-[#f4f7f4]">
-      {/* Navbar & Price Ticker */}
+
       <Navbar />
       <PriceTicker />
 
       <div className="container-main py-10 md:py-14 max-w-xl">
-        {/* Header Title & Subtitle */}
+   
         <div className="mb-8">
           <h1 className="text-2xl font-black text-[#1e2920] md:text-3xl">
             প্রোফাইল আপডেট করুন
@@ -99,7 +99,7 @@ export default function UpdateInformationPage() {
           </p>
         </div>
 
-        {/* Update Form Card */}
+       
         <div className="rounded-2xl border border-[#e3ebe4] bg-white p-6 shadow-sm sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
@@ -124,7 +124,7 @@ export default function UpdateInformationPage() {
               />
             </div>
 
-            {/* Email (Read Only Display) */}
+        
             <div>
               <label className="block text-xs font-semibold text-gray-700 sm:text-sm mb-1.5">
                 ইমেইল
@@ -137,7 +137,7 @@ export default function UpdateInformationPage() {
               />
             </div>
 
-            {/* Submit Button */}
+      
             <button
               type="submit"
               disabled={loading || !name.trim()}
@@ -146,7 +146,7 @@ export default function UpdateInformationPage() {
               {loading ? "আপডেট হচ্ছে..." : "পরিবর্তন সংরক্ষণ করুন"}
             </button>
 
-            {/* Back Link */}
+
             <div className="text-center pt-2">
               <Link
                 href="/profile"
