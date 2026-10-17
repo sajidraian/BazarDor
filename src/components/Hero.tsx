@@ -27,9 +27,9 @@ export default function Hero() {
     <>
       <section className="container-main pt-5">
         <div className="relative flex min-h-[220px] items-center justify-between gap-6 overflow-hidden rounded-3xl border border-[#e8eee9] bg-[#fbfdfb] px-8 py-8 shadow-sm sm:px-12 sm:py-10">
-          {/* Left Content */}
+         
           <div className="relative z-10 max-w-xl">
-            {/* Bangla Date Badge */}
+      
             <span className="inline-flex items-center rounded-full bg-[#e3f2e7] px-3.5 py-1 text-xs font-semibold text-[#21875a]">
               {getBanglaDate()}
             </span>
