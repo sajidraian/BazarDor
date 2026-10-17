@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -39,21 +40,38 @@ export default function Navbar() {
   const [loggingOut, setLoggingOut] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
+
   const pathname = usePathname();
   const router = useRouter();
   const { data: session, isPending } = useSession();
 
   const user = session?.user;
 
-  // বাইরে ক্লিক করলে ড্রপডাউন বন্ধ হয়ে যাবে
+  // Close the profile dropdown when clicking outside or pressing Escape.
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setUserMenuOpen(false);
       }
     }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setUserMenuOpen(false);
+        setMenuOpen(false);
+      }
+    }
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   function isActiveCategory(slug: string) {
@@ -67,9 +85,12 @@ export default function Navbar() {
 
     try {
       await signOut();
+
       setMenuOpen(false);
       setUserMenuOpen(false);
+
       toast.success("সফলভাবে সাইন আউট হয়েছে!");
+
       router.push("/");
       router.refresh();
     } catch {
@@ -79,7 +100,11 @@ export default function Navbar() {
     }
   }
 
-  function ProfileAvatar({ size = "h-9 w-9" }: { size?: string }) {
+  function ProfileAvatar({
+    size = "h-9 w-9",
+  }: {
+    size?: string;
+  }) {
     if (user?.image) {
       return (
         <img
@@ -100,7 +125,11 @@ export default function Navbar() {
     );
   }
 
-  function CategoryLinks({ mobile = false }: { mobile?: boolean }) {
+  function CategoryLinks({
+    mobile = false,
+  }: {
+    mobile?: boolean;
+  }) {
     return (
       <>
         {categories.map((category) => {
@@ -110,7 +139,10 @@ export default function Navbar() {
             <Link
               key={category.slug}
               href={`/category/${category.slug}`}
-              onClick={() => setMenuOpen(false)}
+              onClick={() => {
+                setMenuOpen(false);
+                setUserMenuOpen(false);
+              }}
               aria-current={active ? "page" : undefined}
               className={`flex shrink-0 items-center gap-2 transition ${
                 mobile
@@ -141,7 +173,11 @@ export default function Navbar() {
     );
   }
 
-  function AuthLinks({ mobile = false }: { mobile?: boolean }) {
+  function AuthLinks({
+    mobile = false,
+  }: {
+    mobile?: boolean;
+  }) {
     if (isPending) {
       return (
         <div className="h-9 w-28 animate-pulse rounded-lg bg-gray-100" />
@@ -158,6 +194,7 @@ export default function Navbar() {
               className="col-span-2 flex min-w-0 items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium text-gray-700 transition hover:bg-[#edf7ef]"
             >
               <ProfileAvatar size="h-10 w-10" />
+
               <span className="min-w-0">
                 <span className="block">আমার প্রোফাইল</span>
                 <span className="block max-w-56 truncate text-xs text-gray-500">
@@ -179,48 +216,79 @@ export default function Navbar() {
         );
       }
 
-      // Desktop User Menu Dropdown (ফিগমা ডিজাইন অনুযায়ী নিখুঁত)
+      // Desktop profile dropdown
       return (
         <div className="relative" ref={dropdownRef}>
           <button
             type="button"
             onClick={() => setUserMenuOpen((prev) => !prev)}
+            aria-label="প্রোফাইল মেনু"
+            aria-expanded={userMenuOpen}
+            aria-haspopup="true"
             className="flex items-center gap-2 rounded-xl border border-gray-200 bg-[#fbfdfb] px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-50"
           >
             <ProfileAvatar size="h-7 w-7" />
-            <span className="max-w-[120px] truncate">{user.name || "ব্যবহারকারী"}</span>
-            <ChevronDown size={14} className={`transition-transform duration-200 ${userMenuOpen ? "rotate-180" : ""}`} />
+
+            <span className="max-w-[120px] truncate">
+              {user.name || "ব্যবহারকারী"}
+            </span>
+
+            <ChevronDown
+              size={14}
+              className={`transition-transform duration-200 ${
+                userMenuOpen ? "rotate-180" : ""
+              }`}
+            />
           </button>
 
           {userMenuOpen && (
-            <div className="absolute right-0 mt-2 w-72 rounded-2xl border border-gray-200 bg-white p-4 shadow-xl z-50">
-              {/* User Details Header / Clickable to Profile */}
+            <div
+              role="menu"
+              className="absolute right-0 top-full z-[9999] mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-2xl border border-gray-200 bg-white p-4 shadow-xl"
+            >
+              {/* User profile information */}
               <Link
                 href="/profile"
+                role="menuitem"
                 onClick={() => setUserMenuOpen(false)}
-                className="flex items-center gap-3 pb-3 border-b border-gray-100 hover:opacity-80 transition"
+                className="flex min-w-0 items-center gap-3 border-b border-gray-100 pb-4 transition hover:opacity-80"
               >
-                <ProfileAvatar size="h-10 w-10" />
+                <ProfileAvatar size="h-11 w-11" />
+
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold text-gray-900 truncate">
+                  <p className="truncate text-sm font-bold text-gray-900">
                     {user.name || "ব্যবহারকারী"}
                   </p>
-                  <p className="text-[11px] text-gray-500 truncate">
+
+                  <p className="mt-1 truncate text-xs text-gray-500">
                     {user.email}
                   </p>
+
+                  <p className="mt-1 text-xs font-medium text-[#1d8e4e]">
+                    আমার প্রোফাইল দেখুন
+                  </p>
                 </div>
+
+                <ChevronDown
+                  size={15}
+                  className="-rotate-90 shrink-0 text-gray-400"
+                />
               </Link>
 
-              {/* Sign Out Button */}
+              {/* Sign out */}
               <div className="pt-3">
                 <button
                   type="button"
+                  role="menuitem"
                   onClick={handleSignOut}
                   disabled={loggingOut}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#ffdada] bg-[#fff5f5] py-2.5 text-xs font-semibold text-[#d94a42] transition hover:bg-[#ffebee] disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#ffdada] bg-[#fff5f5] py-2.5 text-xs font-semibold text-[#d94a42] transition hover:bg-[#ffebee] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <LogOut size={14} />
-                  <span>{loggingOut ? "অপেক্ষা করো..." : "সাইন আউট"}</span>
+
+                  <span>
+                    {loggingOut ? "অপেক্ষা করো..." : "সাইন আউট"}
+                  </span>
                 </button>
               </div>
             </div>
@@ -258,21 +326,28 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-[#e5e7eb] bg-white">
+      {/* Logo and account actions */}
       <div className="container-main flex min-h-[68px] items-center justify-between gap-3 py-2">
         <Link
           href="/"
-          onClick={() => setMenuOpen(false)}
-          className="flex shrink-0 items-center gap-2.5 group"
+          onClick={() => {
+            setMenuOpen(false);
+            setUserMenuOpen(false);
+          }}
+          className="group flex shrink-0 items-center gap-2.5"
         >
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#1d8e4e] shadow-sm transition-transform group-hover:scale-105">
-            <span className="text-xl">🛒</span>
+            <span className="text-xl" aria-hidden="true">
+              🛒
+            </span>
           </div>
 
           <div className="flex flex-col justify-center">
-            <span className="text-xl font-bold tracking-tight text-gray-900 leading-tight">
+            <span className="text-xl font-bold leading-tight tracking-tight text-gray-900">
               বাজার দর
             </span>
-            <span className="text-xs font-normal text-gray-500 leading-tight mt-0.5">
+
+            <span className="mt-0.5 text-xs font-normal leading-tight text-gray-500">
               {getBanglaDate()}
             </span>
           </div>
@@ -293,6 +368,7 @@ export default function Navbar() {
         </button>
       </div>
 
+      {/* Desktop category navigation */}
       <nav
         aria-label="পণ্যের বিভাগ"
         className="border-t border-[#edf2ed]"
@@ -302,6 +378,7 @@ export default function Navbar() {
         </div>
       </nav>
 
+      {/* Mobile navigation */}
       {menuOpen && (
         <div className="border-t border-[#edf2ed] bg-white px-4 py-4 shadow-lg sm:hidden">
           <nav
